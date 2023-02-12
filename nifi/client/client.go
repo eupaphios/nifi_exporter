@@ -1,6 +1,7 @@
 package client
 
 import (
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -11,11 +12,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"crypto/tls"
-	"crypto/x509"
-	"crypto/x509/pkix"
-	"encoding/asn1"
 
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
@@ -56,28 +52,10 @@ func NewClient(baseURL, username, password, caCertificates string) (*Client, err
 			"password": []string{password},
 		},
 	}
-	if caCertificates != "" {
-		certPool := x509.NewCertPool()
-		if ok := certPool.AppendCertsFromPEM([]byte(caCertificates)); !ok {
-			return nil, errors.New("Invalid CA certificates.")
-		}
-		for _, der := range certPool.Subjects() {
-			var rdn pkix.RDNSequence
-			if _, err := asn1.Unmarshal(der, &rdn); err != nil {
-				return nil, errors.Trace(err)
-			}
-			var name pkix.Name
-			name.FillFromRDNSequence(&rdn)
-			log.WithFields(log.Fields{
-				"commonName":   name.CommonName,
-				"organization": name.Organization,
-			}).Infof("Loaded CA certificate for %s: %s", baseURL, name.CommonName)
-		}
-		c.client.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{
-				RootCAs: certPool,
-			},
-		}
+	c.client.Transport = &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
 	}
 	return &c, nil
 }
