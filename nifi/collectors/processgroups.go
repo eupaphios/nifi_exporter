@@ -162,11 +162,11 @@ func (c *ProcessGroupsCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (c *ProcessGroupsCollector) Collect(ch chan<- prometheus.Metric) {
-	entities, err := c.api.GetDeepProcessGroups(rootProcessGroupID)
-	if err != nil {
-		ch <- prometheus.NewInvalidMetric(c.componentCount, err)
-		return
-	}
+	entities, _ := c.api.GetDeepProcessGroups(rootProcessGroupID)
+	//if err != nil {
+	//	ch <- prometheus.NewInvalidMetric(c.componentCount, err)
+	//	return
+	//}
 
 	for i := range entities {
 		c.collect(ch, &entities[i])

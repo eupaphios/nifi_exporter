@@ -108,18 +108,10 @@ func start(config *Configuration) error {
 			"url":      node.URL,
 			"username": node.Username,
 		}).Info("Registering NiFi node...")
-		if err := prometheus.DefaultRegisterer.Register(collectors.NewDiagnosticsCollector(api, node.Labels)); err != nil {
-			return errors.Annotate(err, "Couldn't register system diagnostics collector.")
-		}
-		if err := prometheus.DefaultRegisterer.Register(collectors.NewCountersCollector(api, node.Labels)); err != nil {
-			return errors.Annotate(err, "Couldn't register counters collector.")
-		}
-		if err := prometheus.DefaultRegisterer.Register(collectors.NewProcessGroupsCollector(api, node.Labels)); err != nil {
-			return errors.Annotate(err, "Couldn't register process groups collector.")
-		}
-		if err := prometheus.DefaultRegisterer.Register(collectors.NewConnectionsCollector(api, node.Labels)); err != nil {
-			return errors.Annotate(err, "Couldn't register connections collector.")
-		}
+		prometheus.DefaultRegisterer.Register(collectors.NewDiagnosticsCollector(api, node.Labels))
+		prometheus.DefaultRegisterer.Register(collectors.NewCountersCollector(api, node.Labels))
+		prometheus.DefaultRegisterer.Register(collectors.NewProcessGroupsCollector(api, node.Labels))
+		prometheus.DefaultRegisterer.Register(collectors.NewConnectionsCollector(api, node.Labels))
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

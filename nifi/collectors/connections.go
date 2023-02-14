@@ -34,11 +34,11 @@ func (c *ConnectionsCollector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect retrieves the data that for the metrics
 func (c *ConnectionsCollector) Collect(ch chan<- prometheus.Metric) {
-	entities, err := c.api.GetConnections(rootProcessGroupID)
-	if err != nil {
-		ch <- prometheus.NewInvalidMetric(c.flowFilesQueued, err)
-		return
-	}
+	entities, _ := c.api.GetConnections(rootProcessGroupID)
+	//if err != nil {
+	//	ch <- prometheus.NewInvalidMetric(c.flowFilesQueued, nil)
+	//	return
+	//}
 
 	for i := range entities {
 		c.collect(ch, &entities[i])
